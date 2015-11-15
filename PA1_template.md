@@ -8,41 +8,44 @@ output:
 
 ## Loading and preprocessing the data
 
-```{r}
+
+```r
 #load data
 actData<-read.csv(file='activity.csv',sep = ',')
 
 #convert to date format
 actData$date <- as.Date(actData$date, "%Y-%m-%d")
-
 ```
 
 
 ## What is mean total number of steps taken per day?
 
-```{r}
+
+```r
 #Calculate and plot (histogram) the total number of steps per day
 actDsum<-aggregate(steps~date,actData,sum,na.action = na.pass)
 
 hist(actDsum[,2],breaks=10,xlab = 'Number of steps', ylab = 'Frequency (days)',
      main = 'Total number of steps per day',col = '#0072B2')
-
 ```
 
-```{r}
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.png) 
+
+
+```r
 #Calculate the mean and median of the total number of steps per day
 actDmean<-mean(actDsum$steps,na.rm = TRUE)
 actDmedian<-median(actDsum$steps,na.rm = TRUE)
-   
 ```
 
-Total number of steps taken per day mean: `r actDmean`  
-Total number of steps taken per day median: `r actDmedian`
+Total number of steps taken per day mean: 1.0766189 &times; 10<sup>4</sup>  
+Total number of steps taken per day median: 10765
 
 
 ## What is the average daily activity pattern?
 
-```{r}
+
+```r
 #Calculate and plot the mean of steps by 5 minute interval
 actImean<-aggregate(steps~interval,actData,mean)
 
@@ -54,27 +57,32 @@ plot(actImean$interval,actImean$steps,
      ylab = 'Average number of steps')
 ```
 
-```{r}
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png) 
+
+
+```r
 #Find the interval with the maximum mean value
 maxRow<-which(actImean$steps==max(actImean$steps))
 maxInt<-actImean[maxRow,1]
 maxValue<-actImean[maxRow,2]
 ```
 
-The interval with the maximum mean value is the `r maxInt`th with value `r maxValue`.
+The interval with the maximum mean value is the 835th with value 206.1698113.
 
 
 ## Imputing missing values
 
-```{r}
+
+```r
 actDataNA<-sum(is.na(actData$steps))
 ```
 
-Total number of missing values (NAs): `r actDataNA`
+Total number of missing values (NAs): 2304
 
 
 Fill in all of the missing values in the dataset.
-```{r}
+
+```r
 #To keep the original data, copy into a new dataframe in order to replace NAs
 actData2<-actData
 
@@ -93,19 +101,23 @@ hist(actDsum2[,2],breaks=10,xlab = 'Number of steps', ylab = 'Frequency (days)',
      main = 'Total number of steps per day',col = '#0072B2')
 ```
 
-```{r}
+![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7-1.png) 
+
+
+```r
 actDmean2<-mean(actDsum2$steps)
 actDmedian2<-median(actDsum2$steps)
 ```
 The histogram trend is the same but with more data included as the NAs are replaced with actual values (mean). This can be observed by comparing the frequency axis values of the two plots.
 
-The total number of steps taken per day mean (`r actDmean2`) is the same.  
-The total number of steps taken per day median (`r actDmedian2`) is not the same, but equal to the mean.
+The total number of steps taken per day mean (1.0766189 &times; 10<sup>4</sup>) is the same.  
+The total number of steps taken per day median (1.0766189 &times; 10<sup>4</sup>) is not the same, but equal to the mean.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-```{r}
+
+```r
 #Add a new variable to the current dataframe including the name of the day for the corresponding date.
 actData2$weekday<-weekdays(actData2$date)
 
@@ -115,7 +127,8 @@ actData2$weekfactor<-weekdays(actData2$date)
 ```
 
 
-```{r}
+
+```r
 #Create a dataframe with day names and corresponding types
 daynames<-c('Monday','Tuesday','Wednesday',
             'Thursday','Friday','Saturday','Sunday')
@@ -126,14 +139,27 @@ weekfactor<-cbind(daynames,daytypes)
 weekfactor
 ```
 
+```
+##      daynames    daytypes 
+## [1,] "Monday"    "Weekday"
+## [2,] "Tuesday"   "Weekday"
+## [3,] "Wednesday" "Weekday"
+## [4,] "Thursday"  "Weekday"
+## [5,] "Friday"    "Weekday"
+## [6,] "Saturday"  "Weekend"
+## [7,] "Sunday"    "Weekend"
+```
 
-```{r}
+
+
+```r
 #Replace the day names in the weekfactor variable with the corresponding daytype values
 #from the weekfactor dataframe.
 actData2[,'weekfactor']<-weekfactor[,'daytypes'][match(actData2[,'weekfactor'],weekfactor[,'daynames'])]
 ```
 
-```{r}
+
+```r
 #Calculate and plot the mean of steps by 5 minute interval per week factor (Weekday,Weekend).
 actImean2<-aggregate(steps~weekfactor+interval,actData2,mean)
 
@@ -145,6 +171,8 @@ ggplot(actImean2,aes(interval,steps))+
        labs(title='Average number of steps per 5-min interval',
             x='5-min interval',y='Average number of steps')
 ```
+
+![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12-1.png) 
 
 
 
